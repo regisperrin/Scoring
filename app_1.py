@@ -133,7 +133,7 @@ elif app_mode == 'Predict':
         st.write("Age : {:.0f} ans".format(int(data_client["DAYS_BIRTH"]/365)))
 
     if st.checkbox("Customer ID {:.0f} explications ?".format(chk_id)):
-        shap.initjs()
+        #shap.initjs()
         X = sample
         X = X[X.index == chk_id]
         number = st.slider("Nombre de features", 0, 20, 5)
