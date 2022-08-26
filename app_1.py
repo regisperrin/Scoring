@@ -23,7 +23,7 @@ def load_data():
     #sample = pd.read_csv(z.open('X_sample.csv'), index_col='SK_ID_CURR', encoding ='utf-8')
     
     data = pd.read_csv('archive/df_current_clients.csv', index_col='SK_ID_CURR', encoding ='utf-8')
-    sample = pd.read_csv('archive/df_clients_to_predict_feature_selected_id.csv', index_col='SK_ID_CURR', encoding ='utf-8')
+    sample = pd.read_csv('archive/df_clients_to_predict_sf.csv', index_col='SK_ID_CURR', encoding ='utf-8')
     
     description = pd.read_csv("archive/features_description.csv", 
                               usecols=['Row', 'Description'], index_col=0, encoding= 'unicode_escape')
@@ -32,86 +32,49 @@ def load_data():
 
     return data, sample, target, description
 
-def load_sample():
-              
-    sample = pd.read_csv('archive/df_clients_to_predict_feature_selected_id.csv', index_col='SK_ID_CURR', encoding ='utf-8')
-
+def load_sample():      
+    sample = pd.read_csv('archive/df_clients_to_predict_sf.csv', index_col='SK_ID_CURR', encoding ='utf-8')
     return sample
 
 def load_model():
-    '''loading the trained model'''
-    #pickle_in = open('archive/model_1.pkl', 'rb') 
-    #clf = pickle.load(pickle_in)
-    
     # Loading the model
-    clf = joblib.load('archive/model_1.pkl')
-    
-    return clf
+    obj = joblib.load('archive/obj_model.pkl')   
+    return obj
+
+def load_scaler():
+    # Loading the model
+    obj = joblib.load('archive/obj_scaler.pkl')
+    return obj
+
+def load_shap_vals():
+    # Loading the model
+    obj = joblib.load('archive/obj_shap_vals.pkl')
+    return obj
 
 
-@st.cache(allow_output_mutation=True)
-def load_knn(sample):
-    knn = knn_training(sample)
-    return knn
+def get_data_client(df, id):
+        data_client = df[df.index == int(id)]
+        return data_client
 
 
 @st.cache
-def load_infos_gen(data):
-    lst_infos = [data.shape[0],
-                 round(data["AMT_INCOME_TOTAL"].mean(), 2),
-                 round(data["AMT_CREDIT"].mean(), 2)]
-
-    nb_credits = lst_infos[0]
-    rev_moy = lst_infos[1]
-    credits_moy = lst_infos[2]
-
-    targets = data.TARGET.value_counts()
-
-    return nb_credits, rev_moy, credits_moy, targets
-
-
-def identite_client(data, id):
-    data_client = data[data.index == int(id)]
-    return data_client
-
-@st.cache
-def load_age_population(data):
-    data_age = round((data["DAYS_BIRTH"]/365), 2)
-    return data_age
-
-@st.cache
-def load_income_population(sample):
-    df_income = pd.DataFrame(sample["AMT_INCOME_TOTAL"])
-    df_income = df_income.loc[df_income['AMT_INCOME_TOTAL'] < 200000, :]
-    return df_income
-
-@st.cache
-def load_prediction(sample, id, clf):
-    #X=sample.iloc[:, :-1]
+def load_score(sample, id, model):
     X = sample
-    score = clf.predict_proba(X[X.index == int(id)])[:,1]
+    score = model.predict_proba(X[X.index == int(id)])[:,1]
     return score
 
-@st.cache
-def load_kmeans(sample, id, mdl):
-    index = sample[sample.index == int(id)].index.values
-    index = index[0]
-    data_client = pd.DataFrame(sample.loc[sample.index, :])
-    df_neighbors = pd.DataFrame(knn.fit_predict(data_client), index=data_client.index)
-    df_neighbors = pd.concat([df_neighbors, data], axis=1)
-    return df_neighbors.iloc[:,1:].sample(10)
+def load_prediction(sample, id, model):    
+    X = sample    
+    client_scaled = scaler.transform(X[X.index == int(id)].values.reshape(1, -1))    
+    proba_client = model.predict_proba(client_scaled)
+    return proba_client
 
-@st.cache
-def knn_training(sample):
-    knn = KMeans(n_clusters=2).fit(sample)
-    return knn 
-
-
-
-
+def get_pos(sample, id):
+    pos = sample.index.get_loc(int(id))
+    return pos
 
 app_mode = st.sidebar.selectbox('Select Page',['Home','Predict'])
-
+    
 if app_mode=='Home':
     st.title('Customer Prediction')
 
@@ -124,15 +87,66 @@ elif app_mode == 'Predict':
     #Loading data……
     sample = load_sample()
     id_client = sample.index.values
-    clf = load_model()
+    model = load_model()
+    scaler  = load_scaler()
+    shap_vals = load_shap_vals()
+
+    threshold = 0.152
 
     #Loading selectbox
     chk_id = st.selectbox("Client ID", id_client)
+    
+    pos= 0
 
     if st.button("Predict"):
 
-        st.header("**Customer file analysis**")
-        prediction = load_prediction(sample, chk_id, clf)
-        st.write("**Default probability : **{:.0f} %".format(round(float(prediction)*100, 2)))
+        st.header("Analyse du Client")
+        
+        
+        
+        proba_client = load_prediction(sample, chk_id, model)
+        score = load_score(sample, chk_id, model)
+        
+        y_prob = proba_client[:, 1]
+
+        res = (y_prob >= threshold).astype(int)
+
+        if (int(res[0]) == 0):
+            res = "Oui"
+        else:
+            res = "Non"
+        
+        st.write("Resultat : ",res)
+        st.write("Proba_0 : ",proba_client[0][0])
+        st.write("Proba_1 : ",proba_client[0][1])
+        
+        st.write("Default probability : {:.0f} %".format(round(float(score)*100, 2)))
+        
+        
+        st.write("Pos : ", pos)
+
+
+    if st.checkbox("Informations du client :"):
+
+        data_client = get_data_client(sample, chk_id)
+
+        st.write("Age : {:.0f} ans".format(int(data_client["DAYS_BIRTH"]/365)))
+
+    if st.checkbox("Customer ID {:.0f} explications ?".format(chk_id)):
+        shap.initjs()
+        X = sample
+        X = X[X.index == chk_id]
+        number = st.slider("Nombre de features", 0, 20, 5)
+                
+        fig, ax = plt.subplots(figsize=(10, 10))        
+        shap.bar_plot(shap_vals[pos],
+              feature_names=sample.columns,
+              max_display=number)
+        st.pyplot(fig)
+        
+        
+        
+    else:
+        st.markdown("<i>…</i>", unsafe_allow_html=True)
 
 
