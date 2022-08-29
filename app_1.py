@@ -18,7 +18,7 @@ import joblib
  
 # Use the full page instead of a narrow central column
 st.set_page_config(layout="wide")
-shap.initjs()
+
 @st.cache
 def load_data():
     #z = ZipFile("data/archive_selected.zip")
