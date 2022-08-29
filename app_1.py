@@ -18,7 +18,7 @@ import joblib
  
 # Use the full page instead of a narrow central column
 st.set_page_config(layout="wide")
-
+shap.initjs()
 @st.cache
 def load_data():
     #z = ZipFile("data/archive_selected.zip")
@@ -136,8 +136,7 @@ if c1.button("Prediction Score") or st.session_state['pred'] == chk_id:
     c1.write("Age : {:.0f} ans".format(abs(int(data_client["DAYS_BIRTH"]/365))))
     c1.write("Work : {:.0f} ans".format(abs(int(data_client["DAYS_EMPLOYED"]/365))))
 
-if c2.checkbox("Customer ID {:.0f} explications ?".format(chk_id)):
-    shap.initjs()
+if c2.checkbox("Customer ID {:.0f} explications ?".format(chk_id)):    
     X = predict
     X = X[X.index == chk_id]
     number = c2.slider("Nombre de features",5, 20, 10)
