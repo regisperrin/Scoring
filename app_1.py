@@ -194,14 +194,56 @@ if c1.button("Prediction Score") or st.session_state['pred'] == chk_id:
     
     # Create distplot
     fig_AMT_CREDIT = stats_list[0]    
-    fig_AMT_CREDIT.layout.update(title='Density curve')
+    fig_AMT_CREDIT.update_layout(
+                        paper_bgcolor="white",
+                        font={
+                            "family": "Source Sans Pro"
+                        },
+                        autosize=False,
+                        width=500,
+                        height=360,
+                        margin=dict(
+                            l=50, r=50, b=0, t=20, pad=0
+                        ),
+                        title={
+                            "text" : "AMT_CREDIT",
+                            "y" : 1,
+                            "x" : 0.45,
+                            "xanchor" : "center",
+                            "yanchor" : "top"
+                        },
+                        xaxis_title="amt_credit",
+                        yaxis_title="density",
+ 
+                    )
     fig_AMT_CREDIT.add_vline(x=int(data_client["AMT_CREDIT"]), line_width=3,
                          line_dash="dash", line_color="blue", annotation_text="Client")
     c3.plotly_chart(fig_AMT_CREDIT)
 
     # Create distplot
     fig_AGE = stats_list[1]    
-    fig_AGE.layout.update(title='Density curve')
+    fig_AGE.update_layout(
+                        paper_bgcolor="white",
+                        font={
+                            "family": "Source Sans Pro"
+                        },
+                        autosize=False,
+                        width=500,
+                        height=360,
+                        margin=dict(
+                            l=50, r=50, b=0, t=20, pad=0
+                        ),
+                        title={
+                            "text" : "AGE",
+                            "y" : 1,
+                            "x" : 0.45,
+                            "xanchor" : "center",
+                            "yanchor" : "top"
+                        },
+                        xaxis_title="age",
+                        yaxis_title="density",
+ 
+                    )
     fig_AGE.add_vline(x=int(data_client["AGE"]), line_width=3,
                          line_dash="dash", line_color="blue", annotation_text="Client")
     c3.plotly_chart(fig_AGE)
