@@ -62,7 +62,7 @@ def load_model():
 
 def load_stats():
     # Loading the model
-    obj = joblib.load('archive/obj_stats.pkl')
+    obj = joblib.load('archive/obj_figs.pkl')
     return obj
 
 @st.cache
