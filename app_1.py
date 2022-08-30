@@ -20,7 +20,7 @@ import plotly.figure_factory as ff
 import plotly.graph_objs as go
 
 # Use the full page instead of a narrow central column
-#st.set_page_config(layout="wide")
+st.set_page_config(layout="wide")
 
 #shap.initjs()
 
