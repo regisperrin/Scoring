@@ -7,7 +7,7 @@ import pickle
 import shap
 import plotly.express as px
 from zipfile import ZipFile
-from sklearn.cluster import KMeans
+import ipywidgets as widgets
 plt.style.use('fivethirtyeight')
 #sns.set_style('darkgrid')
 
