@@ -7,7 +7,7 @@ import pickle
 import shap
 import plotly.express as px
 from zipfile import ZipFile
-import ipywidgets as widgets
+
 plt.style.use('fivethirtyeight')
 #sns.set_style('darkgrid')
 
@@ -18,11 +18,12 @@ import joblib
 from datetime import date, timedelta
 import plotly.figure_factory as ff
 import plotly.graph_objs as go
+import ipywidgets as widgets
 
 # Use the full page instead of a narrow central column
 st.set_page_config(layout="wide")
 
-shap.initjs()
+# shap.initjs()
 
 def calculate_years(days):
     today = date.today()
