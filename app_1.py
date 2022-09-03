@@ -7,7 +7,7 @@ import pickle
 import shap
 import plotly.express as px
 from zipfile import ZipFile
-#import ipywidgets as widgets
+import ipywidgets as widgets
 plt.style.use('fivethirtyeight')
 #sns.set_style('darkgrid')
 
