@@ -7,7 +7,7 @@ import pickle
 import shap
 import plotly.express as px
 from zipfile import ZipFile
-from sklearn.cluster import KMeans
+import ipywidgets as widgets
 plt.style.use('fivethirtyeight')
 #sns.set_style('darkgrid')
 
@@ -22,7 +22,7 @@ import plotly.graph_objs as go
 # Use the full page instead of a narrow central column
 st.set_page_config(layout="wide")
 
-#shap.initjs()
+# shap.initjs()
 
 def calculate_years(days):
     today = date.today()
@@ -62,7 +62,7 @@ def load_model():
 
 def load_stats():
     # Loading the model
-    obj = joblib.load('archive/obj_stats.pkl')
+    obj = joblib.load('archive/obj_figs.pkl')
     return obj
 
 @st.cache
@@ -122,7 +122,7 @@ client_list = predict.index.values
 model = load_model()
 scaler  = load_scaler()
 shap_vals = load_shap_vals()
-threshold = 0.152
+threshold = 0.586
 
 # Check if 'key' already exists in session_state
 # If not, then initialize it
@@ -171,7 +171,7 @@ if c1.button("Prediction Score") or st.session_state['pred'] == chk_id:
 
 #if c2.checkbox("Customer ID {:.0f} explications ?".format(chk_id)):
     
-    c2.subheader("Customer ID {:.0f} explications ".format(chk_id))
+    c2.subheader("Customer ID {:.2f} explications ".format(chk_id))
     
     pos = get_pos(predict, chk_id)
     
@@ -192,7 +192,43 @@ if c1.button("Prediction Score") or st.session_state['pred'] == chk_id:
     group_labels = ["Repaid", "Not repaid"]
     colors=["Green", "Red"]
     
+    fig_feature_list = ['EXT_SOURCE_3','EXT_SOURCE_2', 'PAYMENT_RATE', 'AGE', 'YEARS_EMPLOYED',
+                    'AMT_CREDIT', 'AMT_GOODS_PRICE', 'AMT_ANNUITY']
     
+    for feature in fig_feature_list:
+        fig = stats_list[feature] 
+        fig.add_vline(x=float(data_client[feature]), line_width=3,
+                         line_dash="dash", line_color="blue", annotation_text="Client")
+        c3.plotly_chart(fig)
+    
+    # Create distplot
+#     fig_AMT_CREDIT = stats_list["AMT_CREDIT"] 
+#     fig_AMT_CREDIT.update_layout(
+#                         paper_bgcolor="white",
+#                         font={
+#                             "family": "Source Sans Pro"
+#                         },
+#                         autosize=False,
+#                         width=500,
+#                         height=360,
+#                         margin=dict(
+#                             l=50, r=50, b=0, t=20, pad=0
+#                         ),
+#                         title={
+#                             "text" : "EXT_SOURCE_3",
+#                             "y" : 1,
+#                             "x" : 0.45,
+#                             "xanchor" : "center",
+#                             "yanchor" : "top"
+#                         },
+#                         xaxis_title="amt_credit",
+#                         yaxis_title="density",
+#  
+#                     )
+#     fig_AMT_CREDIT.add_vline(x=float(data_client["EXT_SOURCE_3"]), line_width=3,
+#                          line_dash="dash", line_color="blue", annotation_text="Client")
+#     c3.plotly_chart(fig_AMT_CREDIT)
+
 
 else:
     st.markdown("<i></i>", unsafe_allow_html=True)
