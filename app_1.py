@@ -23,7 +23,7 @@ import ipywidgets as widgets
 # Use the full page instead of a narrow central column
 st.set_page_config(layout="wide")
 
-# shap.initjs()
+shap.initjs()
 
 def calculate_years(days):
     today = date.today()
@@ -149,26 +149,47 @@ if c1.button("Prediction Score") or st.session_state['pred'] == chk_id:
     y_prob = proba_client[:, 1]
 
     res = (y_prob >= threshold).astype(int)
+    
+    oui_html = """
+    <div style="background-color: green;margin:  0px 20px 20px 20px; border-radius:10px">
+    <h3 style="color: white; text-align:center">OUI</h3>
+    </div>
+    """
+    non_html = """
+    <div style="background-color: red; margin: 0px 20px 20px 20px; border-radius:10px">
+    <h3 style="color: white; text-align:center">NON</h3>
+    </div>
+    """
 
     if (int(res[0]) == 0):
-        res = "Oui"
+        c1.markdown(oui_html, unsafe_allow_html=True)
     else:
-        res = "Non"
+        c1.markdown(non_html, unsafe_allow_html=True)
 
 
-    c1.write("Resultat: " + str(res))
+    #c1.write("Resultat: ")
+    
     c1.write("Proba_0 : "+ str(proba_client[0][0]))
     c1.write("Proba_1 : " + str(proba_client[0][1]))
-    
-    c1.write("Default probability : {:.0f} %".format(round(float(score)*100, 2)))
+    c1.write("Seuil : " + str(threshold))
+    #c1.write("Default probability : {:.0f} %".format(round(float(score)*100, 2)))
 
     data_client = get_data_client(predict, chk_id)
 
     c1.subheader("Informations du client")
 
+    Genre = "Femme"
+    if int(data_client["CODE_GENDER"]) == 1 :
+        Genre = "Homme"
+        
     c1.write("Age : {:.0f} ans".format(int(data_client["AGE"])))
-    c1.write("Work : {:.0f} ans".format(int(data_client["YEARS_EMPLOYED"])))
+    c1.write("Genre : " + Genre)
+    c1.write("Travail : {:.0f} ans".format(int(data_client["YEARS_EMPLOYED"])))
+    c1.write("Enfants : {:.0f} ".format(int(data_client["CNT_CHILDREN"])))
+    c1.write("Revenu : {:.0f} ".format(int(data_client["AMT_INCOME_TOTAL"])))
     c1.write("Crédit : {:.0f} ".format(int(data_client["AMT_CREDIT"])))
+    c1.write("Rente : {:.0f} ".format(int(data_client["AMT_ANNUITY"])))
+    c1.write("Biens : {:.0f} ".format(int(data_client["AMT_GOODS_PRICE"])))
 
 #if c2.checkbox("Customer ID {:.0f} explications ?".format(chk_id)):
     
