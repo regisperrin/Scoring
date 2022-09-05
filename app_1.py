@@ -23,7 +23,7 @@ import ipywidgets as widgets
 # Use the full page instead of a narrow central column
 st.set_page_config(layout="wide")
 
-shap.initjs()
+#shap.initjs()
 
 def calculate_years(days):
     today = date.today()
