@@ -123,7 +123,7 @@ client_list = predict.index.values
 model = load_model()
 scaler  = load_scaler()
 shap_vals = load_shap_vals()
-threshold = 0.586
+threshold = 0.6
 
 # Check if 'key' already exists in session_state
 # If not, then initialize it
